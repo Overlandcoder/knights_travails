@@ -46,18 +46,37 @@ class Board
     start_node = @nodes.find { |node| node.value == start_position }
     end_node = [0, 0]
     level_order(start_node, end_node)
+    # depth(start_node, end_node)
   end
 
   def level_order(start_node, end_node)
     queue = [start_node]
-    path = []
+    path = [start_node.value]
     until queue.empty?
       node = queue.shift
-      p node.value
-      path << node.value
-      node.children.each { |child| queue << child }
-      return path if node.value == end_node
+      binding.pry
+      node.children.each do |child|
+      queue << child
+      child.last = node
+      end
+
+      if node.value == end_node
+        path = []
+        until node.value == start_node.value
+          path << node.value
+          node = node.last
+        end
+        break
+      end
     end
+  end
+
+  def depth(start_node, end_node, depth = 0)
+    return depth if end_node == start_node.value
+
+    depth += 1
+
+    depth(start_node.children.split(""), end_node, depth)
   end
 
     # ignore this method
@@ -80,12 +99,12 @@ end
 
 class Node
   attr_reader :value
-  attr_accessor :children
+  attr_accessor :children, :last
 
-  def initialize(value)
+  def initialize(value, last = nil)
     @value = value
     @children = []
-    p value
+    @last = last
   end
 end
 
