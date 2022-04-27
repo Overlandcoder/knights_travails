@@ -14,18 +14,6 @@ class Board
     [[1, 2], [1, -2], [-1, 2], [-1, -2], [2, 1], [2, -1], [-2, 1], [-2, -1]]
   end
 
-  def create_children(node)
-    possible_moves.each do |move|
-      x_coord = node.value[0] + move[0]
-      y_coord = node.value[1] + move[1]
-      if valid_move?(x_coord, y_coord) && !@moves.include?([x_coord, y_coord])
-        @child = Node.new([x_coord, y_coord])
-        @moves << [x_coord, y_coord]
-        node.children << @child
-      end
-    end
-  end
-
   def valid_move?(x_coord, y_coord)
     x_coord.between?(0, 7) && y_coord.between?(0, 7)
   end
@@ -47,11 +35,43 @@ class Board
         x_coord = node.value[0] + move[0]
         y_coord = node.value[1] + move[1]
         if valid_move?(x_coord, y_coord)
-          
+          child = nodes.find { |node| node.value == [x_coord, y_coord] }
+          node.children << child
         end
       end
     end
   end
+
+  def knight_moves(start_position)
+    start_node = @nodes.find { |node| node.value == start_position }
+    end_node = [0, 0]
+    level_order(start_node, end_node)
+  end
+
+  def level_order(start_node, end_node)
+    queue = [start_node]
+    path = []
+    until queue.empty?
+      node = queue.shift
+      p node.value
+      path << node.value
+      node.children.each { |child| queue << child }
+      return path if node.value == end_node
+    end
+  end
+
+    # ignore this method
+    def create_children(node)
+      possible_moves.each do |move|
+        x_coord = node.value[0] + move[0]
+        y_coord = node.value[1] + move[1]
+        if valid_move?(x_coord, y_coord) && !@moves.include?([x_coord, y_coord])
+          @child = Node.new([x_coord, y_coord])
+          @moves << [x_coord, y_coord]
+          node.children << @child
+        end
+      end
+    end
 end
 
 class Knight
@@ -74,3 +94,5 @@ knight = Node.new(game.start)
 game.positions
 p game.create_nodes
 p game.moves.count
+game.assign_children
+game.knight_moves([3, 3])
