@@ -1,13 +1,13 @@
 require 'pry-byebug'
 
 class Board
-  attr_reader :start
-  attr_accessor :moves, :nodes
+  attr_accessor :nodes
 
-  def initialize(start)
-    @start = start
-    @moves = [start]
+  def initialize
     @nodes = []
+    positions
+    create_nodes
+    assign_children
   end
 
   def possible_moves
@@ -25,7 +25,7 @@ class Board
 
   def create_nodes
     positions.each do |position|
-      nodes << Node.new(position)
+      @nodes << Node.new(position)
     end
   end
 
@@ -42,76 +42,48 @@ class Board
     end
   end
 
-  def knight_moves(start_position)
-    start_node = @nodes.find { |node| node.value == start_position }
-    end_node = [0, 0]
-    level_order(start_node, end_node)
-    # depth(start_node, end_node)
+  def knight_moves(start_position, end_position)
+    starting_node = @nodes.find { |node| node.value == start_position }
+    level_order(starting_node, end_position)
   end
 
-  def level_order(start_node, end_node)
-    queue = [start_node]
-    path = [start_node.value]
+  def level_order(starting_node, end_position)
+    queue = [starting_node]
     until queue.empty?
       node = queue.shift
-      binding.pry
       node.children.each do |child|
-      queue << child
-      child.last = node
+        queue << child
+        child.parent = node if child.parent.nil?
       end
 
-      if node.value == end_node
-        path = []
-        until node.value == start_node.value
-          path << node.value
-          node = node.last
-        end
+      if node.value == end_position
+        create_path(node, starting_node)
         break
       end
     end
   end
 
-  def depth(start_node, end_node, depth = 0)
-    return depth if end_node == start_node.value
-
-    depth += 1
-
-    depth(start_node.children.split(""), end_node, depth)
-  end
-
-    # ignore this method
-    def create_children(node)
-      possible_moves.each do |move|
-        x_coord = node.value[0] + move[0]
-        y_coord = node.value[1] + move[1]
-        if valid_move?(x_coord, y_coord) && !@moves.include?([x_coord, y_coord])
-          @child = Node.new([x_coord, y_coord])
-          @moves << [x_coord, y_coord]
-          node.children << @child
-        end
-      end
+  def create_path(node, starting_node)
+    path = []
+    until node.value == starting_node.value
+      path << node.value
+      node = node.parent
+      path << node.value if node.value == starting_node.value
     end
-end
-
-class Knight
-
+    p path.reverse
+  end
 end
 
 class Node
   attr_reader :value
-  attr_accessor :children, :last
+  attr_accessor :children, :parent
 
-  def initialize(value, last = nil)
+  def initialize(value, parent = nil)
     @value = value
     @children = []
-    @last = last
+    @parent = parent
   end
 end
 
-game = Board.new([3, 3])
-knight = Node.new(game.start)
-game.positions
-p game.create_nodes
-p game.moves.count
-game.assign_children
-game.knight_moves([3, 3])
+game = Board.new
+game.knight_moves([0, 0], [4, 4])
