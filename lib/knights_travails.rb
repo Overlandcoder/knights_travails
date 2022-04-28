@@ -29,10 +29,7 @@ class Board
       possible_moves.each do |move|
         x_coord = node.value[0] + move[0]
         y_coord = node.value[1] + move[1]
-        if valid_move?(x_coord, y_coord)
-          child = find_child(x_coord, y_coord)
-          node.children << child
-        end
+        node.children << find_child(x_coord, y_coord) if valid_move?(x_coord, y_coord)
       end
     end
   end
