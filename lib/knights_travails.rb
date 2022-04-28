@@ -79,12 +79,11 @@ class Node
   attr_reader :position
   attr_accessor :children, :parent
 
-  def initialize(position, parent = nil)
+  def initialize(position)
     @position = position
     @children = []
-    @parent = parent
   end
 end
 
 game = Board.new
-game.knight_moves([0, 0], [4, 4])
+game.knight_moves([0, 0], [1, 1])
