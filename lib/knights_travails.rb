@@ -1,3 +1,5 @@
+require 'pry-byebug'
+
 class Board
   attr_accessor :nodes
 
@@ -28,7 +30,7 @@ class Board
       possible_moves.each do |move|
         x_coord = node.position[0] + move[0]
         y_coord = node.position[1] + move[1]
-        node.children << find_child(x_coord, y_coord) if valid_move?(x_coord, y_coord)
+        node.add_child(find_child(x_coord, y_coord)) if valid_move?(x_coord, y_coord)
       end
     end
   end
@@ -46,10 +48,7 @@ class Board
     queue = [starting_node]
     until queue.empty?
       node = queue.shift
-      node.children.each do |child|
-        queue << child
-        child.parent = node if child.parent.nil?
-      end
+      node.queue_children(queue, node)
 
       if node.position == end_position
         create_path(node, starting_node)
@@ -76,12 +75,23 @@ class Board
 end
 
 class Node
-  attr_reader :position
-  attr_accessor :children, :parent
+  attr_reader :position, :children
+  attr_accessor :parent
 
   def initialize(position)
     @position = position
     @children = []
+  end
+
+  def add_child(new_child)
+    @children << new_child
+  end
+
+  def queue_children(queue, parent)
+    @children.each do |child|
+      queue << child
+      child.parent ||= parent
+    end
   end
 end
 
