@@ -1,5 +1,3 @@
-require 'pry-byebug'
-
 class Board
   attr_accessor :nodes
 
@@ -19,14 +17,11 @@ class Board
   end
 
   def positions
-    positions = [*0..7].repeated_permutation(2).to_a
-    positions
+    [*0..7].repeated_permutation(2).to_a
   end
 
   def create_nodes
-    positions.each do |position|
-      @nodes << Node.new(position)
-    end
+    positions.each { |position| @nodes << Node.new(position) }
   end
 
   def assign_children
@@ -35,11 +30,15 @@ class Board
         x_coord = node.value[0] + move[0]
         y_coord = node.value[1] + move[1]
         if valid_move?(x_coord, y_coord)
-          child = nodes.find { |node| node.value == [x_coord, y_coord] }
+          child = find_child(x_coord, y_coord)
           node.children << child
         end
       end
     end
+  end
+
+  def find_child(x_coord, y_coord)
+    nodes.find { |node| node.value == [x_coord, y_coord] }
   end
 
   def knight_moves(start_position, end_position)
@@ -70,7 +69,13 @@ class Board
       node = node.parent
       path << node.value if node.value == starting_node.value
     end
-    p path.reverse
+    display_path(path)
+  end
+
+  def display_path(path)
+    puts "Attempting to go from #{path[-1]} to #{path[0]}..."
+    puts "You made it in #{path.count - 1} moves! Here's your path:"
+    path.reverse.each { |move| p move }
   end
 end
 
