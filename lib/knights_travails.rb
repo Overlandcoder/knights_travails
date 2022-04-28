@@ -3,7 +3,6 @@ class Board
 
   def initialize
     @nodes = []
-    positions
     create_nodes
     assign_children
   end
@@ -21,25 +20,25 @@ class Board
   end
 
   def create_nodes
-    positions.each { |position| @nodes << Node.new(position) }
+    positions.each { |position| nodes << Node.new(position) }
   end
 
   def assign_children
     nodes.each do |node|
       possible_moves.each do |move|
-        x_coord = node.value[0] + move[0]
-        y_coord = node.value[1] + move[1]
+        x_coord = node.position[0] + move[0]
+        y_coord = node.position[1] + move[1]
         node.children << find_child(x_coord, y_coord) if valid_move?(x_coord, y_coord)
       end
     end
   end
 
   def find_child(x_coord, y_coord)
-    nodes.find { |node| node.value == [x_coord, y_coord] }
+    nodes.find { |node| node.position == [x_coord, y_coord] }
   end
 
   def knight_moves(start_position, end_position)
-    starting_node = @nodes.find { |node| node.value == start_position }
+    starting_node = @nodes.find { |node| node.position == start_position }
     level_order(starting_node, end_position)
   end
 
@@ -52,7 +51,7 @@ class Board
         child.parent = node if child.parent.nil?
       end
 
-      if node.value == end_position
+      if node.position == end_position
         create_path(node, starting_node)
         break
       end
@@ -61,10 +60,10 @@ class Board
 
   def create_path(node, starting_node)
     path = []
-    until node.value == starting_node.value
-      path << node.value
+    until node.position == starting_node.position
+      path << node.position
       node = node.parent
-      path << node.value if node.value == starting_node.value
+      path << node.position if node.position == starting_node.position
     end
     display_path(path)
   end
@@ -77,11 +76,11 @@ class Board
 end
 
 class Node
-  attr_reader :value
+  attr_reader :position
   attr_accessor :children, :parent
 
-  def initialize(value, parent = nil)
-    @value = value
+  def initialize(position, parent = nil)
+    @position = position
     @children = []
     @parent = parent
   end
